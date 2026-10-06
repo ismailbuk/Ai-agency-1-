@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050b14"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<title>Agency Life Base</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050b14;--glass:rgba(14,34,56,.55);--line:rgba(92,225,255,.22);--text:#dff6ff;--dim:#7fa4b8;--cy:#5ce1ff;--gold:#f5b94a;--bad:#ff7a85;--ok:#46e6a8;box-sizing:border-box}
+*{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(120% 55% at 50% -8%,#0e2f4d 0%,transparent 62%),var(--bg);color:var(--text);font:500 16px/1.45 Rajdhani,"Segoe UI",system-ui,sans-serif;letter-spacing:.02em;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0)}
+#hd{display:flex;align-items:center;gap:12px;padding:12px 18px 8px}
+#hd b{font-size:19px;font-weight:600;letter-spacing:.18em}
+small{display:block;color:var(--dim);font-size:13px;letter-spacing:.06em}
+.orb{width:36px;height:36px;border-radius:50%;position:relative;border:1px solid var(--cy);box-shadow:0 0 16px rgba(92,225,255,.45),inset 0 0 10px rgba(92,225,255,.25);flex:none}
+.orb::before{content:"";position:absolute;inset:5px;border-radius:50%;border:1px dashed var(--cy);animation:spin 16s linear infinite}
+.orb::after{content:"";position:absolute;inset:12px;border-radius:50%;background:radial-gradient(#fff,var(--cy) 55%,transparent 72%);animation:pulse 3.2s ease-in-out infinite}
+.busy .orb::before{animation-duration:2.2s}.busy .orb::after{animation-duration:.9s}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.45;transform:scale(.8)}}
+@media (prefers-reduced-motion:reduce){.orb::before,.orb::after{animation:none}}
+#lvbox{width:104px;text-align:right}#lv{font-weight:600;color:var(--gold);letter-spacing:.12em}
+.bar{height:5px;border-radius:3px;background:rgba(92,225,255,.15);overflow:hidden;margin:2px 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cy),var(--gold));width:0;transition:width .5s}
+main{flex:1;overflow-y:auto;padding:6px 18px 16px}
+canvas{width:100%;max-width:440px;display:block;margin:0 auto 10px;image-rendering:pixelated;aspect-ratio:160/224;border-radius:16px;border:1px solid var(--line);box-shadow:0 0 30px rgba(92,225,255,.12)}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:13px;margin:10px 0;backdrop-filter:blur(8px)}
+.card b{color:var(--gold);font-weight:600}
+.dim{color:var(--dim);font-size:14px}.err{color:var(--bad)}.ok{color:var(--ok)}
+.out{white-space:pre-wrap;word-wrap:break-word}
+h2{font-size:17px;font-weight:600;letter-spacing:.12em;color:var(--cy);margin:16px 0 4px}
+label{display:block;font-size:14px;color:var(--dim);margin:12px 0 4px}
+input,textarea,select{width:100%;font:inherit;color:var(--text);background:rgba(8,22,38,.7);border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-top:6px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.row>*{flex:1;min-width:70px;margin-top:0}
+button{font:inherit;font-weight:600;letter-spacing:.06em;color:var(--cy);background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer}
+button.go{color:#fff;border-color:var(--cy);background:rgba(92,225,255,.14);box-shadow:0 0 12px rgba(92,225,255,.25)}
+button.no{color:var(--bad);border-color:rgba(255,122,133,.4);flex:none;padding:4px 12px}
+button:disabled{opacity:.45}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.chips{display:flex;gap:8px}.chip{flex:1;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:8px;text-align:center}.chip b{display:block;font-size:22px;color:var(--cy)}
+.m{max-width:90%;margin:10px 0;white-space:pre-wrap;word-wrap:break-word}.me{margin-left:auto;background:var(--glass);border:1px solid var(--line);border-radius:16px 16px 4px 16px;padding:8px 13px;width:fit-content}
+.ai{border-left:2px solid var(--cy);padding-left:12px}
+.item{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.pill{font-size:12px;border:1px solid var(--line);border-radius:10px;padding:0 8px;color:var(--dim)}
+nav{display:flex;overflow-x:auto;padding:2px 6px calc(6px + env(safe-area-inset-bottom,0))}
+nav button{flex:0 0 auto;min-width:68px;border:0;border-radius:0;color:var(--dim);padding:12px 12px;position:relative;letter-spacing:.03em}
+nav button.on{color:var(--cy)}nav button.on::after{content:"";position:absolute;left:25%;right:25%;top:0;height:2px;background:var(--cy);box-shadow:0 0 10px var(--cy)}
+.fc{width:100%;min-height:130px;display:grid;place-items:center;text-align:center;font-size:19px;font-weight:500;letter-spacing:.02em;color:var(--text);border-color:var(--ok);border-radius:16px;margin:12px 0 6px}
+</style>
+</head>
+<body>
+<header id="hd"><div class="orb"></div><div style="flex:1"><b>AGENCY</b><small id="st">life base</small></div><div id="lvbox"><span id="lv"></span><div class="bar"><i id="xpb"></i></div><small id="xt"></small></div></header>
+<main id="app"></main>
+<nav id="nav"></nav>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ls=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
+let cfg=Object.assign({prov:"gemini",key:"",model:"gemini-flash-latest",tg:"",tgchat:""},ls("cb_cfg")||{});
+const DEF=()=>({xp:0,work:[],bw:[],sleep:[],jobs:[],chat:[],deck:[],ideas:[],watch:["S&P 500","Bitcoin"],brief:"",briefAt:0,q:[],notes:[],prof:{goal:"",days:"3",region:"",interests:"",quals:"",niche:"",aud:""}});
+let D=Object.assign(DEF(),ls("lf")||{});
+let S={tab:"base",busy:false,msg:"",bad:false,out:{},delivered:false};
+const save=()=>ls("lf",D),tdy=()=>new Date().toLocaleDateString("en-CA"),lvl=x=>Math.floor(Math.sqrt(x/40))+1;
+const gain=n=>{D.xp+=n;save()};
+const dd=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const note=(m,bad)=>{S.msg=m;S.bad=!!bad};
+
+/* ---------- LLM ---------- */
+async function llm(system,msgs,opt){
+  const o=opt===true?{search:true}:(opt||{});
+  if(!cfg.key)throw new Error("Add your free API key in Setup first.");
+  if(cfg.prov==="gemini"){
+    const body={systemInstruction:{parts:[{text:system}]},contents:msgs.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content},...(m.img?[{inlineData:{mimeType:m.img.type||"image/jpeg",data:m.img.b64}}]:[])]}))};
+    if(o.search)body.tools=[{google_search:{}}];else if(o.json)body.generationConfig={responseMimeType:"application/json"};
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(cfg.model)}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":cfg.key},body:JSON.stringify(body)});
+    const d=await r.json();if(!r.ok)throw new Error(d.error?.message||"Gemini error "+r.status);
+    return d.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("")||"";
+  }
+  if(o.search)throw new Error("Live search needs Gemini. Switch provider in Setup.");
+  if(msgs.some(m=>m.img))throw new Error("Photo analysis needs Gemini. Switch provider in Setup.");
+  const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+cfg.key},body:JSON.stringify({model:cfg.model,messages:[{role:"system",content:system},...msgs],...(o.json?{response_format:{type:"json_object"}}:{})})});
+  const d=await r.json();if(!r.ok)throw new Error(d.error?.message||"Groq error "+r.status);
+  return d.choices?.[0]?.message?.content||"";
+}
+async function run(fn){S.busy=true;note("");draw();try{await fn()}catch(e){note(e.message,1)}S.busy=false;draw()}
+
+/* ---------- life data helpers ---------- */
+function streak(){const ds=new Set(D.work.map(w=>w.d));let n=0,d=new Date(tdy());
+  if(!ds.has(d.toISOString().slice(0,10)))d.setUTCDate(d.getUTCDate()-1);
+  while(ds.has(d.toISOString().slice(0,10))){n++;d.setUTCDate(d.getUTCDate()-1)}return n}
+const ST=["Researching","Preparing","Applied","Interview","Offer","Rejected"];
+const openJobs=()=>D.jobs.filter(j=>j.dl&&!["Offer","Rejected"].includes(j.st)).sort((a,b)=>a.dl<b.dl?-1:1);
+function report(id){
+  if(id==="health"){const w=D.work;if(!w.length)return "No workouts logged yet. Let's start today.";
+    const s=streak(),ago=dd(w[w.length-1].d,tdy());
+    return s>1?`${s}-day streak. Keep it going.`:ago===0?"Session logged today. Nice work.":`Last session was ${ago} day${ago>1?"s":""} ago. Time to train?`}
+  if(id==="career"){if(!D.jobs.length)return "Nothing tracked yet. Add an apprenticeship or university.";
+    const o=openJobs();if(!o.length)return `${D.jobs.length} tracked, no open deadlines.`;
+    const d=dd(tdy(),o[0].dl);return d<0?`${o[0].n}: deadline passed ${-d} days ago.`:`${o[0].n} closes in ${d} day${d===1?"":"s"}.`}
+  if(id==="tutor"){if(!D.deck.length)return "No flashcards yet. Give me notes and I'll make some.";const n=D.deck.filter(c=>c.due<=Date.now()).length;return n?`${n} card${n>1?"s":""} due for review.`:"All caught up. Nothing due."}
+  if(id==="creator"){if(!D.ideas.length)return "No video ideas yet. Give me a niche.";const s=D.ideas.filter(i=>i.st==="Scripting").length;return `${D.ideas.length} ideas in the pipeline${s?`, ${s} being scripted`:""}.`}
+  if(id==="scout")return D.briefAt?`Last market brief was ${Math.round((Date.now()-D.briefAt)/36e5)}h ago. Tap me for a fresh one.`:"Tap me for today's market brief.";
+  return "";
+}
+const summary=()=>`Level ${lvl(D.xp)}. Gym: ${D.work.length} sets logged, streak ${streak()}, goal "${D.prof.goal||"not set"}". Career: ${D.jobs.map(j=>`${j.n} (${j.t}, ${j.st}, deadline ${j.dl||"none"})`).join("; ")||"nothing tracked"}. Region: ${D.prof.region||"unknown"}.`;
+
+/* ---------- game scene ---------- */
+const W=160,H=224,HUB={x:80,y:108};
+const AG=[{id:"health",n:"Pulse",x:34,y:50,c:"#46e6a8",tab:"health"},{id:"career",n:"Atlas",x:126,y:50,c:"#f5b94a",tab:"career"},
+  {id:"tutor",n:"Tutor",x:34,y:170,c:"#b18cff",tab:"study"},{id:"creator",n:"Creator",x:126,y:170,c:"#ff7a85",tab:"create"},{id:"scout",n:"Scout",x:80,y:192,c:"#7fb8ff",tab:"markets"}];
+AG.forEach(a=>{a.hx=a.x;a.hy=a.y;a.mode="idle"});
+let cv,cx,raf=0,queue=[],cur=null,T=0;
+function mv(a,tx,ty){const dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy);if(d<1){a.x=tx;a.y=ty;return true}a.x+=dx/d*.7;a.y+=dy/d*.7;return false}
+function toast(a){$("#toast").innerHTML=`<b style="color:${a.c}">${a.n}</b> ${esc(report(a.id))} <button data-open="${a.tab}" style="padding:2px 12px;margin-left:6px">Open</button>`}
+function step(){T++;
+  if(cur){if(cur.mode==="go"){if(mv(cur,cur.tx,cur.ty)){cur.mode="wait";cur.t=T+210;toast(cur)}}
+    else if(cur.mode==="wait"&&T>cur.t){cur.mode="back";cur.item=false}
+    else if(cur.mode==="back"&&mv(cur,cur.hx,cur.hy)){cur.mode="idle";cur=null}}
+  else if(queue.length){cur=queue.shift();cur.mode="go";cur.item=true;cur.tx=HUB.x+(cur.hx<80?-13:13);cur.ty=HUB.y+17}}
+function chr(x,y,c,walk,item,sleep){x=Math.round(x);y=Math.round(y);const f=walk?(T>>3)&1:0;
+  cx.fillStyle="#0007";cx.fillRect(x-3,y+7,7,2);
+  cx.fillStyle="#1b2b3d";cx.fillRect(x-2,y+5,2,3-f);cx.fillRect(x+1,y+5,2,2+f);
+  cx.fillStyle=c;cx.fillRect(x-3,y,6,5);cx.fillRect(x-4,y+1,1,3);cx.fillRect(x+3,y+1,1,3);
+  cx.fillStyle="#f2c9a0";cx.fillRect(x-2,y-5,4,5);cx.fillStyle="#2a1a12";cx.fillRect(x-2,y-5,4,1);
+  cx.fillStyle="#102";cx.fillRect(x-1,y-3,1,1);cx.fillRect(x+1,y-3,1,1);
+  if(item){cx.fillStyle="#f5b94a";cx.fillRect(x-3,y-11,6,4);cx.fillStyle="#fff";cx.fillRect(x-2,y-10,4,1);cx.fillStyle="#f5b94a55";cx.fillRect(x-5,y-13,10,8)}
+  if(sleep){cx.fillStyle="#5ce1ff99";cx.font="6px monospace";cx.fillText("z",x+4,y-6-((T>>5)&1))}}
+function render(){
+  cx.fillStyle="#06101c";cx.fillRect(0,0,W,H);
+  for(let y=0;y<H;y+=8)for(let x=0;x<W;x+=8){cx.fillStyle=((x+y)/8%2)?"#0a1a2c":"#0c2034";cx.fillRect(x,y,8,8)}
+  cx.strokeStyle="#5ce1ff66";cx.strokeRect(1.5,1.5,W-3,H-3);
+  const pulse=.35+.25*Math.sin(T/20);cx.strokeStyle=`rgba(92,225,255,${pulse+.2})`;cx.beginPath();cx.arc(HUB.x,HUB.y+4,19,0,7);cx.stroke();
+  cx.strokeStyle=`rgba(245,185,74,${pulse})`;cx.beginPath();cx.arc(HUB.x,HUB.y+4,25,0,7);cx.stroke();
+  cx.fillStyle="#16314d";cx.fillRect(HUB.x-14,HUB.y+6,28,9);cx.fillStyle="#5ce1ff";cx.fillRect(HUB.x-6,HUB.y+1,12,5);
+  AG.forEach(a=>{cx.fillStyle="#16314d";cx.fillRect(a.hx-10,a.hy+4,20,9);cx.fillStyle=a.lock?"#233447":((T>>4)%5?a.c:"#fff");cx.fillRect(a.hx-4,a.hy-1,8,5);
+    cx.fillStyle=a.lock?"#4a6378":"#a9d6e8";cx.font="6px monospace";cx.fillText(a.n,a.hx-a.n.length*1.7,a.hy+21)});
+  AG.filter(a=>a.mode==="idle").forEach(a=>chr(a.x,a.y-3,a.c,0,0,a.lock));
+  chr(HUB.x,HUB.y-4,"#5ce1ff",0,0,0);
+  if(cur)chr(cur.x,cur.y,cur.c,cur.mode!=="wait",cur.item,0);
+}
+function loop(){if(S.tab!=="base"||!cv?.isConnected){raf=0;return}step();render();raf=requestAnimationFrame(loop)}
+function baseBind(){
+  cv=$("#cv");cx=cv.getContext("2d");cx.imageSmoothingEnabled=false;
+  if(!S.delivered){S.delivered=true;queue=AG.filter(a=>!a.lock&&a!==cur&&!queue.includes(a))}
+  cv.onclick=e=>{const r=cv.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*W,py=(e.clientY-r.top)/r.height*H;
+    const a=AG.find(a=>Math.abs(px-a.hx)<14&&Math.abs(py-a.hy)<14);
+    if(a&&a.lock){$("#toast").textContent=a.n+" isn't built yet. We'll bring them online next.";return}
+    if(a){go(a.tab);return}
+    if(Math.hypot(px-HUB.x,py-HUB.y)<26&&!cur)queue=AG.filter(a=>!a.lock)};
+  if(!raf)raf=requestAnimationFrame(loop);
+}
+const baseView=()=>`<canvas id="cv" width="160" height="224" aria-label="Your base: agents at their desks"></canvas>
+  <div id="toast" class="card dim">Tap an agent to open them, or tap the centre desk to call a report.</div>
+  <div class="chips"><div class="chip"><b>${lvl(D.xp)}</b><small>level</small></div><div class="chip"><b>${streak()}</b><small>gym streak</small></div><div class="chip"><b>${openJobs().length}</b><small>open deadlines</small></div><div class="chip"><b>${D.q.filter(x=>x.st==="pending").length}</b><small>approvals</small></div></div>`;
+
+/* ---------- health ---------- */
+const EX=["Squat","Bench press","Deadlift","Overhead press","Barbell row","Pull-up","Lat pulldown","Leg press","Biceps curl","Triceps pushdown","Plank"];
+function healthView(){
+  const w=D.work,wk=new Set(w.filter(x=>dd(x.d,tdy())<7).map(x=>x.d)).size,dis=S.busy?"disabled":"";
+  const rec=w.map((x,i)=>({...x,i})).reverse().slice(0,8),bw=D.bw.slice(-20);let sp="";
+  if(bw.length>1){const v=bw.map(x=>x.v),mn=Math.min(...v),mx=Math.max(...v);sp=`<svg viewBox="0 0 300 60" width="100%" height="60" aria-label="Bodyweight trend"><polyline points="${v.map((y,i)=>`${i*300/(v.length-1)},${54-((y-mn)/((mx-mn)||1))*48}`).join(" ")}" fill="none" stroke="#5ce1ff" stroke-width="2"/></svg>`}
+  return `<h2>Health: Pulse</h2><div class="chips"><div class="chip"><b>${streak()}</b><small>day streak</small></div><div class="chip"><b>${wk}</b><small>days this week</small></div><div class="chip"><b>${D.bw.length?D.bw[D.bw.length-1].v:"-"}</b><small>kg now</small></div></div>
+  <h2>Log a set</h2><input id="ex" list="exl" placeholder="Exercise"><datalist id="exl">${EX.map(e=>`<option>${e}</option>`).join("")}</datalist>
+  <div class="row"><input id="se" type="number" inputmode="numeric" placeholder="Sets"><input id="rp" type="number" inputmode="numeric" placeholder="Reps"><input id="kg" type="number" inputmode="decimal" placeholder="kg"></div>
+  <div class="row"><button class="go" id="wl">Log set (+20 XP)</button></div>
+  ${rec.map(x=>`<div class="card item"><span><b>${esc(x.e)}</b> ${x.s}x${x.r}${x.k?" @ "+x.k+"kg":""}<br><span class="dim">${x.d}</span></span><button class="no" data-dw="${x.i}" aria-label="Delete">x</button></div>`).join("")}
+  <h2>Bodyweight</h2><div class="row"><input id="bv" type="number" inputmode="decimal" placeholder="kg today"><button id="bl">Log (+5 XP)</button></div>${sp}
+  ${sleepHTML()}<h2>Coach</h2><label for="gl">Goal</label><input id="gl" data-prof="goal" value="${esc(D.prof.goal)}" placeholder="e.g. build muscle, run 5k"><label for="dy">Days per week</label><input id="dy" data-prof="days" type="number" value="${esc(D.prof.days)}">
+  <div class="row"><button class="go" id="plan" ${dis}>Plan my week</button><button id="rev" ${dis}>Review progress</button></div>
+  ${S.out.health?`<div class="card out">${esc(S.out.health)}</div>`:""}<div class="dim">General fitness guidance, not medical advice.</div>`;
+}
+const PULSE="You are Pulse, a supportive gym and health coach in the owner's life app. Give practical, safe advice: progressive overload, rest days, sleep, protein basics. No extreme diets or crash weight loss. You are not a doctor: for pain, injury, medical conditions or eating concerns, suggest a professional. Concise, short lists.";
+const hctx=()=>`Goal: ${D.prof.goal||"not set"}. Days/week: ${D.prof.days}. Recent sets: ${D.work.slice(-30).map(x=>`${x.d} ${x.e} ${x.s}x${x.r}@${x.k}kg`).join("; ")||"none"}. Bodyweight: ${D.bw.slice(-8).map(x=>x.d+" "+x.v+"kg").join(", ")||"none"}. Sleep: ${D.sleep.slice(-7).map(x=>x.d+" "+x.h+"h").join(", ")||"none"}.`;
+
+/* ---------- career ---------- */
+function careerView(){
+  const p=D.prof,dis=S.busy?"disabled":"",L=D.jobs.map((j,i)=>({...j,i})).sort((a,b)=>(a.dl||"9")<(b.dl||"9")?-1:1);
+  return `<h2>Career: Atlas</h2><label for="rg">Country or region</label><input id="rg" data-prof="region" value="${esc(p.region)}" placeholder="e.g. UK">
+  <label for="in">Interests</label><input id="in" data-prof="interests" value="${esc(p.interests)}" placeholder="e.g. engineering, finance"><label for="ql">Qualifications and grades</label><input id="ql" data-prof="quals" value="${esc(p.quals)}">
+  <div class="row"><button class="go" id="find" ${dis}>Find options (live)</button><button id="path" ${dis}>Plan my path</button></div>
+  ${S.out.career?`<div class="card out">${esc(S.out.career)}</div>`:""}
+  <h2>Tracker</h2><input id="jn" placeholder="Name, e.g. Degree apprenticeship at X"><div class="row"><select id="jt"><option>Apprenticeship</option><option>University</option><option>Job</option></select><input id="jd" type="date" aria-label="Deadline"></div><input id="jk" placeholder="Link or notes">
+  <div class="row"><button class="go" id="jadd">Add (+10 XP)</button></div>
+  ${L.map(j=>{const d=j.dl?dd(tdy(),j.dl):null,col=d===null?"var(--dim)":d<0?"var(--dim)":d<=3?"var(--bad)":d<=14?"var(--gold)":"var(--ok)";
+   return `<div class="card"><div class="item"><b>${esc(j.n)}</b><button class="no" data-dj="${j.i}" aria-label="Delete">x</button></div><span class="pill">${esc(j.t)}</span> <span style="color:${col}">${d===null?"no deadline":d<0?"closed "+(-d)+"d ago":d+" days left"}</span>
+   ${j.k?`<div class="dim out">${esc(j.k)}</div>`:""}<select data-js="${j.i}">${ST.map(s=>`<option ${s===j.st?"selected":""}>${s}</option>`).join("")}</select></div>`}).join("")}
+  <div class="dim">Always confirm deadlines and entry requirements on the official site.</div>`;
+}
+const ATLAS="You are Atlas, a practical career planner for apprenticeships, university and early career. Be specific and honest. Always tell the owner to confirm deadlines and requirements on the official provider, government or university site.";
+const cctx=()=>`Region: ${D.prof.region||"unknown"}. Interests: ${D.prof.interests||"unknown"}. Qualifications: ${D.prof.quals||"unknown"}. Tracked: ${summary()}`;
+
+/* ---------- chat + setup ---------- */
+function chatViewOld(){return `<h2>Commander</h2>${D.chat.length?D.chat.slice(-30).map(m=>`<div class="m ${m.r==="me"?"me":"ai"}">${esc(m.t)}</div>`).join(""):`<div class="m ai">Ask me anything about your life base. I can see your gym and career data.</div>`}
+  <textarea id="cq" rows="2" placeholder="Ask the Commander..."></textarea><div class="row"><button class="go" id="cs" ${S.busy?"disabled":""}>Send</button><button id="cc">Clear</button></div>`}
+const setViewOld=()=>`<h2>Brain (free)</h2><label for="pv">Provider: gemini or groq</label><input id="pv" value="${esc(cfg.prov)}"><label for="ky">API key</label><input id="ky" type="password" value="${esc(cfg.key)}"><label for="md">Model</label><input id="md" value="${esc(cfg.model)}">
+  <div class="row"><button class="go" id="sv">Save</button><button class="no" id="rs">Reset all data</button></div><div class="dim">Data lives only in this browser on this device.</div>`;
+
+/* ---------- actions ---------- */
+const sync=()=>document.querySelectorAll("[data-prof]").forEach(e=>D.prof[e.dataset.prof]=e.value.trim());
+const v=id=>$("#"+id)?.value.trim()||"";
+const ACT={
+  wl(){const e=v("ex"),s=+v("se"),r=+v("rp"),k=+v("kg")||0;if(!e||!s||!r){note("Enter exercise, sets and reps.",1);return draw()}
+    const prev=Math.max(0,...D.work.filter(x=>x.e.toLowerCase()===e.toLowerCase()).map(x=>x.k));D.work.push({d:tdy(),e,s,r,k});
+    const pr=k>prev&&prev>0;gain(pr?50:20);note(pr?"New personal best! +50 XP":"Logged. +20 XP");draw(["se","rp","kg"])},
+  bl(){const x=+v("bv");if(!x){note("Enter your weight.",1);return draw()}D.bw.push({d:tdy(),v:x});gain(5);note("Logged. +5 XP");draw(["bv"])},
+  plan(){sync();run(async()=>{S.out.health=await llm(PULSE,[{role:"user",content:`${hctx()}\nBuild my training plan for the week.`}])})},
+  rev(){sync();run(async()=>{S.out.health=await llm(PULSE,[{role:"user",content:`${hctx()}\nReview my progress and tell me what to change.`}])})},
+  jadd(){const n=v("jn");if(!n){note("Enter a name.",1);return draw()}D.jobs.push({n,t:$("#jt").value,dl:v("jd"),k:v("jk"),st:"Researching"});gain(10);note("Added. +10 XP");draw(["jn","jd","jk"])},
+  find(){sync();run(async()=>{S.out.career=await llm(ATLAS,[{role:"user",content:`${cctx()}\nUse search. Find current apprenticeships and university courses that fit me. For each give provider, programme, typical application deadline or window, and how to apply. Name your sources. Finish with the 3 best next steps.`}],true)})},
+  path(){sync();run(async()=>{S.out.career=await llm(ATLAS,[{role:"user",content:`${cctx()}\nMake me a realistic path plan with the next 90 days, key deadlines to look for, and what to prepare.`}])})},
+  cs(){const t=v("cq");if(!t)return;D.chat.push({r:"me",t});save();run(async()=>{const h=D.chat.slice(-10).map(m=>({role:m.r==="me"?"user":"assistant",content:m.t}));
+    const o=await llm("You are the Commander, central brain of the owner's personal life base with specialists Pulse (health) and Atlas (career). Be concise and practical. Owner data: "+summary(),h);D.chat.push({r:"ai",t:o});save()});draw(["cq"])},
+  cc(){D.chat=[];save();draw()},
+  sv(){cfg={prov:v("pv").toLowerCase(),key:v("ky"),model:v("md")};ls("cb_cfg",cfg);note("Saved.");draw()},
+  rs(){if(confirm("Delete all your data on this device?")){D=Object.assign({xp:0,work:[],bw:[],jobs:[],chat:[],prof:{goal:"",days:"3",region:"",interests:"",quals:""}});save();draw()}}
+};
+/* ===== draft one additions: all agents, approvals, camera, voice, backup ===== */
+const pj=t=>JSON.parse(String(t).replace(/```json|```/g,"").trim());
+const tg=(m,b)=>fetch(`https://api.telegram.org/bot${cfg.tg}/${m}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(r=>r.json());
+const TUTOR="You are Tutor, a revision coach. Explain simply, test understanding, keep answers tight.";
+const CREATOR="You are Creator, a YouTube business strategist. Be specific and realistic about results. Titles under 60 characters, honest but curiosity-driven.";
+const SCOUT="You are Scout, a markets analyst. Use search for current information. For each watchlist item give the latest move, the main reason and what to watch, then 3 top market headlines. Be concise, flag uncertainty, name sources, and end with: Information only, not financial advice.";
+const CMD=()=>`You are the Commander, central brain of the owner's personal life base. Specialists: Pulse (health), Atlas (career), Tutor (study), Creator (YouTube), Scout (markets). You can see photos the owner attaches. Be concise and practical. Owner data: ${summary()}
+Reply ONLY JSON: {"reply":"...","actions":[]}. Propose actions only when asked or clearly useful (max 3). The owner must approve each; nothing is sent automatically. Action types:
+{"type":"email_draft","to":"","subject":"","body":""}
+{"type":"telegram","text":""}
+{"type":"whatsapp_link","phone":"digits with country code","text":""}
+{"type":"note","text":""}
+Never invent email addresses or phone numbers; leave them empty if unknown.`;
+
+function sleepHTML(){const s=D.sleep.slice(-7),avg=s.length?(s.reduce((a,x)=>a+x.h,0)/s.length).toFixed(1):"-";
+  return `<h2>Sleep</h2><div class="row"><input id="sh" type="number" step="0.5" inputmode="decimal" placeholder="Hours last night"><button id="sl">Log (+5 XP)</button></div><div class="dim">7-night average: ${avg} h</div>`}
+
+function studyView(){const dis=S.busy?"disabled":"",now=Date.now(),due=D.deck.filter(c=>c.due<=now),cur=due[0];
+  return `<h2>Study: Tutor</h2><div class="dim">${D.deck.length} cards, ${due.length} due</div>
+  <label for="tp">Paste notes or a topic</label><textarea id="tp" rows="4"></textarea>
+  <div class="row"><select id="tn"><option>8</option><option>15</option><option>25</option></select><button class="go" id="mk" ${dis}>Make cards (+10 XP)</button></div>
+  <div class="row"><button id="ex2" ${dis}>Explain it</button><button id="qz" ${dis}>Quiz me</button>${D.deck.length?'<button class="no" id="cd">Delete deck</button>':""}</div>
+  ${cur?`<button id="fc" class="fc card">${esc(S.flip?cur.a:cur.q)}</button><div class="dim" style="text-align:center">Tap card to flip. Box ${cur.box} of 5</div>${S.flip?`<div class="row"><button id="again">Again</button><button class="go" id="know">Got it (+5 XP)</button></div>`:""}`:(D.deck.length?`<div class="card">All caught up. Cards return on a spaced schedule.</div>`:"")}
+  ${S.out.study?`<div class="card out">${esc(S.out.study)}</div>`:""}`}
+
+const YS=["Idea","Scripting","Filmed","Posted"];
+function createView(){const dis=S.busy?"disabled":"",p=D.prof;
+  return `<h2>Create: Creator</h2><label for="nc">Niche or channel idea</label><input id="nc" data-prof="niche" value="${esc(p.niche||"")}" placeholder="e.g. budget cooking for students"><label for="au">Audience and goal</label><input id="au" data-prof="aud" value="${esc(p.aud||"")}" placeholder="e.g. 18-24, reach monetisation">
+  <div class="row"><button class="go" id="idea" ${dis}>Generate 8 ideas (+10 XP)</button></div>
+  ${D.ideas.map((x,i)=>`<div class="card"><b>${esc(x.title)}</b><div class="dim">Hook: ${esc(x.hook)}<br>Thumbnail: ${esc(x.thumb)}</div><div class="row"><select data-is="${i}">${YS.map(s=>`<option ${s===x.st?"selected":""}>${s}</option>`).join("")}</select><button data-sc="${i}" ${dis}>Write script</button><button class="no" data-ri="${i}" aria-label="Delete">x</button></div>${x.script?`<div class="out dim" style="margin-top:8px">${esc(x.script)}</div>`:""}</div>`).join("")}`}
+
+function marketsView(){return `<h2>Markets: Scout</h2><div class="dim">Live data uses Gemini search. Information only, not financial advice.</div><label for="wl">Watchlist (comma separated)</label><input id="wl" value="${esc(D.watch.join(", "))}">
+  <div class="row"><button class="go" id="br" ${S.busy?"disabled":""}>Brief me (+5 XP)</button></div>${D.brief?`<div class="card out">${esc(D.brief)}</div><div class="dim">${new Date(D.briefAt).toLocaleString()}</div>`:""}`}
+
+const QL={email_draft:"Email draft",telegram:"Telegram message",whatsapp_link:"WhatsApp message",note:"Note"};
+function queueView(){return `<h2>Approvals</h2><div class="dim">Agents propose, you decide. Nothing leaves your phone until you approve.</div>`+(D.q.length?[...D.q].reverse().map(it=>{const a=it.a;
+  return `<div class="card"><b>${QL[a.type]||esc(a.type)}</b> <span class="dim">${it.st}</span><div class="dim out">${esc(Object.entries(a).filter(([k])=>k!=="type").map(([k,x])=>k+": "+x).join("\n"))}</div>${it.res?`<div class="${it.st==="failed"?"err":"ok"}">${esc(it.res)}</div>`:""}${it.st==="pending"?`<div class="row"><button class="go" data-ok="${it.id}">Approve</button><button data-no="${it.id}">Reject</button></div>`:""}</div>`}).join("")+`<div class="row"><button id="cq2">Clear all</button></div>`:`<div class="card dim">Nothing waiting.</div>`)}
+
+function chatView(){return `<h2>Commander</h2>${D.chat.length?D.chat.slice(-30).map(m=>`<div class="m ${m.r==="me"?"me":"ai"}">${esc(m.t)}</div>`).join(""):`<div class="m ai">Ask me anything. I can see your data and any photo you attach. I can also draft emails and messages for your approval.</div>`}
+  ${S.att?`<div class="dim">Attached: ${esc(S.att.name)}</div>`:""}<textarea id="cq" rows="2" placeholder="Ask the Commander..."></textarea>
+  <div class="row"><button id="cam1">Camera</button><button id="fil1">Photo</button><button id="mic">Mic</button><button class="go" id="cs" ${S.busy?"disabled":""}>Send</button></div>
+  <label style="margin:8px 0"><input type="checkbox" id="sp" ${S.speak?"checked":""} style="width:auto"> Speak replies</label><div class="row"><button id="cc">Clear chat</button></div>
+  <input type="file" id="cam" accept="image/*" capture hidden><input type="file" id="fil" accept="image/*" hidden>`}
+
+const setView=()=>`<h2>Brain (free)</h2><label for="pv">Provider: gemini or groq</label><input id="pv" value="${esc(cfg.prov)}"><label for="ky">API key</label><input id="ky" type="password" value="${esc(cfg.key)}"><label for="md">Model</label><input id="md" value="${esc(cfg.model)}">
+  <h2>Telegram (optional)</h2><div class="dim">Make a bot with @BotFather, message it once, then paste the token and your chat ID. While the app is open, messages to the bot go to the Commander.</div><label for="tk">Bot token</label><input id="tk" type="password" value="${esc(cfg.tg)}"><label for="tc">Chat ID</label><input id="tc" value="${esc(cfg.tgchat)}">
+  <div class="row"><button class="go" id="sv">Save</button></div>
+  <h2>Backup</h2><div class="dim">Your data lives only on this device. Back up weekly.</div><div class="row"><button id="bx">Download backup</button><button id="bc">Copy backup</button><button id="bi">Restore from file</button></div><input type="file" id="imf" accept=".json,application/json" hidden>
+  <div class="row"><button class="no" id="rs">Reset all data</button></div><div class="dim" style="margin-top:14px">Agency Life Base, Draft 1</div>`;
+
+function setAtt(f){if(!f)return;if(f.size>15e6){note("Photo is too large (max 15MB).",1);return draw()}
+  const rd=new FileReader();rd.onload=()=>{S.att={name:f.name||"photo",type:f.type,b64:rd.result.split(",")[1]};draw()};rd.readAsDataURL(f)}
+function ask(t,att){if(S.busy||(!t&&!att))return;S.att=null;const ft=S.fromTg;S.fromTg=false;
+  D.chat.push({r:"me",t:(t||"(photo)")+(att?` [${att.name}]`:"")});save();
+  run(async()=>{const h=D.chat.slice(-10).map(m=>({role:m.r==="me"?"user":"assistant",content:m.t}));if(att?.b64)h[h.length-1].img=att;
+    const raw=await llm(CMD(),h,{json:true});let o;try{o=pj(raw)}catch(e){o={reply:String(raw)}}
+    const re=o.reply||"";D.chat.push({r:"ai",t:re});
+    (o.actions||[]).slice(0,3).forEach(a=>D.q.push({id:Date.now()+Math.random(),a,st:"pending"}));
+    if(o.actions?.length)note(o.actions.length+" action(s) waiting in Approve.");
+    save();if(S.speak&&re){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(re))}
+    if(ft&&cfg.tg&&cfg.tgchat)tg("sendMessage",{chat_id:cfg.tgchat,text:re||"..."})});
+  draw(["cq"])}
+async function exec(a){
+  if(a.type==="email_draft"){location.href=`mailto:${encodeURIComponent(a.to||"")}?subject=${encodeURIComponent(a.subject||"")}&body=${encodeURIComponent(a.body||"")}`;return "Opened your mail app with the draft ready. Review and send it there."}
+  if(a.type==="telegram"){if(!cfg.tg||!cfg.tgchat)throw new Error("Add the Telegram bot token and chat ID in Setup.");const d=await tg("sendMessage",{chat_id:cfg.tgchat,text:a.text});if(!d.ok)throw new Error(d.description);return "Sent on Telegram."}
+  if(a.type==="whatsapp_link"){window.open(`https://wa.me/${String(a.phone||"").replace(/\D/g,"")}?text=${encodeURIComponent(a.text||"")}`,"_blank");return "WhatsApp opened with the message ready. Tap send there."}
+  if(a.type==="note"){(D.notes=D.notes||[]).push(a.text);return "Note saved."}
+  throw new Error("Unknown action type.")}
+async function decide(id,ok){const it=D.q.find(x=>x.id==id);if(!it)return;if(!ok){it.st="rejected";save();return draw()}
+  it.st="running";draw();try{it.res=await exec(it.a);it.st="done"}catch(e){it.res=e.message;it.st="failed"}save();draw()}
+function grade(ok){const c=D.deck.find(c=>c.due<=Date.now());if(!c)return;const g=[0,1,1,3,7,21].map(d=>d*864e5);
+  c.box=ok?Math.min(5,c.box+1):1;c.due=Date.now()+(ok?g[c.box]:6e5);S.flip=false;if(ok)gain(5);save();draw()}
+
+Object.assign(ACT,{
+  sl(){const h=+v("sh");if(!h||h>24){note("Enter hours slept.",1);return draw()}D.sleep.push({d:tdy(),h});gain(5);note("Logged. +5 XP");draw(["sh"])},
+  mk(){const t=v("tp");if(!t){note("Paste notes or a topic first.",1);return draw()}const n=$("#tn").value;
+    run(async()=>{const o=pj(await llm(TUTOR,[{role:"user",content:`Make ${n} flashcards from:\n${t}\nReply ONLY JSON {"cards":[{"q":"","a":""}]}. Answers max 2 sentences.`}],{json:true}));
+      D.deck.push(...(o.cards||[]).map(c=>({q:c.q,a:c.a,box:1,due:0})));S.flip=false;gain(10);save()})},
+  ex2(){const t=v("tp");if(!t){note("Paste notes or a topic first.",1);return draw()}run(async()=>{S.out.study=await llm(TUTOR,[{role:"user",content:"Explain this simply with an example:\n"+t}]);gain(5);save()})},
+  qz(){const t=v("tp");if(!t){note("Paste notes or a topic first.",1);return draw()}run(async()=>{S.out.study=await llm(TUTOR,[{role:"user",content:"Write 5 quiz questions on this. Put the answers after a line of ---.\n"+t}]);gain(5);save()})},
+  fc(){S.flip=!S.flip;draw()},know(){grade(1)},again(){grade(0)},
+  cd(){D.deck=[];save();draw()},
+  idea(){sync();if(!D.prof.niche){note("Enter a niche first.",1);return draw()}save();
+    run(async()=>{const o=pj(await llm(CREATOR,[{role:"user",content:`Niche: ${D.prof.niche}\nAudience and goal: ${D.prof.aud||"general"}\nGive 8 video ideas. Reply ONLY JSON {"ideas":[{"title":"","hook":"first 10 seconds line","thumb":"thumbnail concept"}]}`}],{json:true}));
+      D.ideas.unshift(...(o.ideas||[]).map(x=>({...x,st:"Idea"})));gain(10);save()})},
+  script(i){const x=D.ideas[i];if(!x)return;run(async()=>{x.script=await llm(CREATOR,[{role:"user",content:`Write a YouTube script, about 500 words, with a strong hook, clear sections, [VISUAL] cues and a call to action.\nTitle: ${x.title}\nHook: ${x.hook}\nNiche: ${D.prof.niche||""}\nAudience: ${D.prof.aud||""}`}]);x.st="Scripting";gain(10);save()})},
+  br(){D.watch=v("wl").split(",").map(s=>s.trim()).filter(Boolean);run(async()=>{D.brief=await llm(SCOUT,[{role:"user",content:`Today is ${new Date().toDateString()}. Watchlist: ${D.watch.join(", ")}`}],true);D.briefAt=Date.now();gain(5);save()})},
+  cq2(){D.q=[];save();draw()},
+  cam1(){$("#cam").click()},fil1(){$("#fil").click()},
+  mic(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){note("Voice input isn't supported here. Use your keyboard's mic.",1);return draw()}
+    const r=new R();r.lang=navigator.language||"en-US";r.onresult=e=>{$("#cq").value=e.results[0][0].transcript;ACT.cs()};r.start()},
+  cs(){ask(v("cq"),S.att)},
+  sv(){cfg={prov:v("pv").toLowerCase(),key:v("ky"),model:v("md"),tg:v("tk"),tgchat:v("tc")};ls("cb_cfg",cfg);note("Saved.");draw()},
+  bx(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({v:1,D})],{type:"application/json"}));a.download="agency-backup-"+tdy()+".json";a.click();note("Backup downloaded.");draw()},
+  bc(){navigator.clipboard.writeText(JSON.stringify({v:1,D})).then(()=>{note("Backup copied. Paste it somewhere safe.");draw()},()=>{note("Copy failed. Use Download backup.",1);draw()})},
+  bi(){$("#imf").click()},
+  rs(){if(confirm("Delete all your data on this device?")){D=DEF();save();draw()}}
+});
+let tgoff=0;setInterval(async()=>{if(!cfg.tg||!cfg.tgchat||S.busy)return;
+  try{const d=await tg("getUpdates",{offset:tgoff,timeout:0});for(const u of d.result||[]){tgoff=u.update_id+1;const m=u.message;
+    if(m?.text&&String(m.chat.id)===String(cfg.tgchat)){S.fromTg=true;ask(m.text,null);break}}}catch(e){}},5000);
+
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+  if(d.t||d.open)return go(d.t||d.open);
+  if(d.dw!==undefined){D.work.splice(+d.dw,1);save();return draw()}
+  if(d.dj!==undefined){D.jobs.splice(+d.dj,1);save();return draw()}
+  if(d.ok!==undefined||d.no!==undefined)return decide(d.ok??d.no,d.ok!==undefined);
+  if(d.sc!==undefined)return ACT.script(+d.sc);
+  if(d.ri!==undefined){D.ideas.splice(+d.ri,1);save();return draw()}
+  ACT[b.id]?.()});
+document.addEventListener("change",e=>{const t=e.target;
+  if(t.dataset.prof){D.prof[t.dataset.prof]=t.value.trim();save()}
+  if(t.dataset.is!==undefined){D.ideas[+t.dataset.is].st=t.value;save()}
+  if(t.id==="sp")S.speak=t.checked;
+  if((t.id==="cam"||t.id==="fil")&&t.files[0])setAtt(t.files[0]);
+  if(t.id==="imf"&&t.files[0])t.files[0].text().then(x=>{try{D=Object.assign(DEF(),JSON.parse(x).D);save();note("Restored.")}catch(e){note("That file is not a valid backup.",1)}draw()});
+  if(t.dataset.js!==undefined){const j=D.jobs[+t.dataset.js],old=ST.indexOf(j.st);j.st=t.value;if(ST.indexOf(t.value)>old&&t.value!=="Rejected"){gain(15);note("Progress! +15 XP")}save();draw()}});
+function go(t){S.tab=t;S.delivered=false;note("");draw();$("#app").scrollTop=0}
+
+function draw(blank){
+  const keep={};document.querySelectorAll("#app [id]").forEach(e=>{if("value"in e&&e.type!=="file")keep[e.id]=e.value});(blank||[]).forEach(k=>delete keep[k]);
+  const view={base:baseView,chat:chatView,health:healthView,career:careerView,study:studyView,create:createView,markets:marketsView,queue:queueView,set:setView}[S.tab];
+  const top=$("#app").scrollTop;
+  $("#app").innerHTML=view()+(S.msg?`<p class="${S.bad?"err":"ok"}">${esc(S.msg)}</p>`:"");
+  for(const k in keep){const e=document.getElementById(k);if(e&&keep[k]!=="")e.value=keep[k]}
+  $("#app").scrollTop=top;
+  const l=lvl(D.xp),lo=40*(l-1)**2,hi=40*l*l;$("#lv").textContent="LV "+l;$("#xpb").style.width=Math.min(100,(D.xp-lo)/(hi-lo)*100)+"%";$("#xt").textContent=D.xp+" XP";
+  $("#hd").className=S.busy?"busy":"";$("#st").textContent=S.busy?"thinking...":(D.q.some(x=>x.st==="pending")?"awaiting your approval":"life base");
+  $("#nav").innerHTML=[["base","Base"],["chat","Chat"],["health","Health"],["career","Career"],["study","Study"],["create","Create"],["markets","Markets"],["queue","Approve"+(D.q.some(x=>x.st==="pending")?" ("+D.q.filter(x=>x.st==="pending").length+")":"")],["set","Setup"]].map(x=>`<button data-t="${x[0]}" class="${x[0]===S.tab?"on":""}">${x[1]}</button>`).join("");
+  if(S.tab==="base")baseBind();
+}
+draw();
+</script>
+</body>
+</html>
